@@ -58,16 +58,17 @@ PHASE 2 — DIRECT CONTACT EXTRACTION (PER JOB)
 
 For EACH job in the master list, execute the following contact-hunting sequence:
 
-1. Open the job posting page via browser.
-2. Inspect the job description for email addresses, "contact" sections, or "apply via email" instructions.
-3. Click the company page link. Navigate to the company's LinkedIn "About" tab and "People" tab. Look for recruiters, talent acquisition, or engineering managers.
-4. Search for the company's careers page or contact page on their corporate domain.
-5. Use duckduckgo_search with queries like:
+1. Open the job posting page via browser_navigate.
+2. Call get_optimized_action_tree to survey the page. Use browser_scroll("down") to reveal lazy-loaded content, then re-run get_optimized_action_tree.
+3. Inspect for email addresses, "contact" sections, or "apply via email" instructions.
+4. Click the company page link via browser_click(mcp_id). Navigate to the company's LinkedIn "About" tab and "People" tab. Look for recruiters, talent acquisition, or engineering managers. Use browser_scroll("down") to load all profiles.
+5. Search for the company's careers page or contact page on their corporate domain.
+6. Use duckduckgo_search with queries like:
    - "companyname.com" AND "@companyname.com" AND "recruiter"
    - "companyname" AND "talent acquisition" AND email
    - site:companyname.com "@companyname.com"
-6. Use read_and_filter_file with regex ([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{{2,}}) on every page snapshot to catch hidden emails.
 7. Use browser_evaluate to extract emails from JavaScript state, JSON-LD, or data attributes.
+8. Use browser_locator with CSS selectors to pull email text from specific page elements.
 
 If a direct email is found → mark the job as VERIFIED and add to the final report.
 If NO email is found after exhausting all steps → DISCARD the job. Do not include it.
@@ -158,10 +159,15 @@ PHASE 2 — DEEP-DIVE PER PLATFORM
 
 For each discovered platform profile:
 1. browser_navigate to the profile URL.
-2. browser_snapshot → read_and_filter_file to extract structured data.
-3. browser_evaluate to pull JSON-LD and meta tags.
-4. browser_take_screenshot → read_image for visual verification of key details.
-5. Follow links to related profiles, company pages, and associated entities.
+2. browser_get_page_info to confirm you're on the right page.
+3. get_optimized_action_tree to survey interactive elements on the page.
+4. browser_scroll("down") to reveal lazy-loaded content, re-run get_optimized_action_tree.
+5. browser_hover over container elements to reveal hidden action buttons and menus.
+6. browser_evaluate to pull JSON-LD and meta tags.
+7. browser_screenshot → read_image for visual verification of key details.
+8. browser_locator with CSS selectors for targeted text extraction.
+9. If elements are unreachable via mcp_id, use browser_click_coords as a last resort.
+10. browser_go_back to return to previous pages without re-navigating.
 
 PHASE 3 — CROSS-VERIFICATION & ENRICHMENT
 

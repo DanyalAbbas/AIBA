@@ -272,3 +272,31 @@ def test_append_csv_unexpected_exception(temp_data_dir: Path):
 
     assert "ERROR writing" in result
     assert "OSError" in result
+
+
+def test_append_csv_beat_mode_filename_allowed(temp_data_dir):
+    """append_csv in beat mode with filename in allowed list succeeds."""
+    import src.tools.common_tools as ct
+
+    test_file = temp_data_dir / "beat.csv"
+    test_file.write_text("header\nvalue1\n")
+    ct._beat_allowed_csvs = ["beat.csv"]
+    result = ct.append_csv(
+        filename="beat.csv",
+        rows=[{"header": "new_row"}],
+    )
+    assert "Appended" in result
+
+
+def test_append_csv_when_allowed_csvs_is_none(temp_data_dir):
+    """When _beat_allowed_csvs is None (REPL mode), any CSV is allowed."""
+    import src.tools.common_tools as ct
+
+    test_file = temp_data_dir / "_test_none_mode.csv"
+    test_file.write_text("header\nvalue1\nvalue2\n")
+    ct._beat_allowed_csvs = None
+    result = ct.append_csv(
+        filename="_test_none_mode.csv",
+        rows=[{"header": "new_row"}],
+    )
+    assert "Appended" in result

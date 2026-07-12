@@ -332,7 +332,7 @@ def run_beat(name: str) -> dict[str, Any]:
     save_state(state)
 
     # Log
-    if result_info["status"] != "skipped":
+    if result_info["status"] != "skipped":  # pragma: no branch - 'skipped' returns early at line 248
         log_beat_run(name, result_info)
 
     # Email summary

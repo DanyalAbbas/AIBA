@@ -13,9 +13,13 @@ dependencies = [
     "pydantic-ai-shields>=0.3.4",
     "pydantic-settings>=2.14.1",
     "pyyaml>=6.0",
+    "Pillow>=11.0",
     "croniter>=6.0",
     "rich>=13.0.0",
     "markdown>=3.10.2",
+    "fastmcp-slim[server]>=3.4.2",
+    "nanoid>=2.0.0",
+    "pyright[latest]>=1.1.410",
 ]
 
 [dependency-groups]
@@ -85,7 +89,9 @@ testpaths = ["tests"]
 pythonpath = ["."]
 filterwarnings = [
     # pydantic-ai uses asyncio.get_event_loop() which is deprecated in 3.12+
-    "ignore:There is no current event loop:DeprecationWarning:pydantic_ai",
+    "ignore:There is no current event loop:DeprecationWarning",
+    # logfire not configured in unit tests — harmless
+    "ignore::logfire._internal.config.LogfireNotConfiguredWarning",
 ]
 
 [tool.coverage.run]

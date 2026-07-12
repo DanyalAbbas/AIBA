@@ -373,3 +373,48 @@ def test_load_legacy_raw_array_format(tmp_path, monkeypatch):
     assert loaded_settings is None
     assert len(loaded_msgs) == 2
     assert loaded_msgs[0].parts[0].content == "legacy question"
+
+
+def test_trim_skips_non_part_message_in_tail():
+    """When a message in the trim range has no .parts, loop continues."""
+    messages: list = [_make_request("system")] + [
+        _make_response(f"response {i}") for i in range(14)
+    ]
+    # Insert a plain dict (no .parts) in the trim range
+    messages.insert(12, {"role": "custom", "content": "no parts"})
+    max_count = 5
+
+    trimmed = trim_history(messages, max_count=max_count)
+
+    assert trimmed[0] == messages[0]
+    assert len(trimmed) >= max_count - 1
+
+
+def test_print_history_with_tool_call_part(capsys):
+    """print_history skips parts with part_kind neither 'user-prompt' nor 'text'."""
+    from pydantic_ai.messages import (
+        ModelRequest,
+        ModelResponse,
+        TextPart,
+        ToolCallPart,
+        UserPromptPart,
+    )
+
+    messages = [
+        ModelRequest(parts=[UserPromptPart(content="hello", part_kind="user-prompt")]),
+        ModelResponse(parts=[
+            ToolCallPart(
+                tool_name="search",
+                args='{"q": "test"}',
+                tool_call_id="call_1",
+                part_kind="tool-call",
+            ),
+            TextPart(content="Here is the result", part_kind="text"),
+        ]),
+    ]
+
+    print_history(messages)
+    captured = capsys.readouterr()
+    # Should render the user-prompt and text, skip tool-call
+    assert "hello" in captured.out
+    assert "Here is the result" in captured.out

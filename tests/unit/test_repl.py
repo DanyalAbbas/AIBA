@@ -248,3 +248,21 @@ def test_repl_session_settings_default(capsys):
     captured = capsys.readouterr()
     assert "Session started" in captured.out
     assert "Session ended" in captured.out
+
+
+def test_repl_run_with_session_settings_dict(capsys):
+    """run() with session_settings already a dict covers the non-None branch."""
+    config = _make_config()
+    settings = {"model": "gemini-2.5-flash", "temperature": 0.5}
+
+    with patch("builtins.input", side_effect=["/exit"]):
+        run(
+            _make_agent_fn(),
+            _make_initial_result(),
+            config,
+            session_settings=settings,
+        )
+
+    captured = capsys.readouterr()
+    assert "Session started" in captured.out
+    assert "Session ended" in captured.out
