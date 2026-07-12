@@ -830,3 +830,46 @@ def test_send_beat_summary_skipped_status():
         _send_beat_summary(beat, result, settings)
 
     mock_smtp.return_value.__enter__.return_value.send_message.assert_called_once()
+
+
+def test_run_beat_without_notify_email():
+    """When notify_email is empty, _send_beat_summary is not called."""
+    beat = BeatConfig.model_construct(
+        name="test-beat",
+        schedule="0 9 * * *",
+        template="default",
+        mode="agent",
+        effort="quick",
+        sub_agents=5,
+        prompt_extra="",
+        budget_override_usd=None,
+        notify_email="",
+        allowed_csvs=[],
+    )
+    fake = FakeAgentResult()
+
+    with patch("src.services.beats.load_beats", return_value={"test-beat": beat}):
+        with patch("src.services.beats.load_state", return_value={}):
+            with patch("src.services.beats.save_state"):
+                with patch("src.services.beats.log_beat_run"):
+                    with patch(
+                        "src.services.beats._send_beat_summary"
+                    ) as mock_email:
+                        with patch("src.services.beats.AibaSettings"):
+                            with patch(
+                                "src.services.beats.get_beat_allowed_csvs",
+                                return_value=[],
+                            ):
+                                with patch("src.services.beats.set_beat_allowed_csvs"):
+                                    with patch(
+                                        "src.services.beats.get_template",
+                                        return_value=_FAKE_TEMPLATES[0],
+                                    ):
+                                        with patch(
+                                            "src.services.beats.run_agent",
+                                            return_value=fake,
+                                        ):
+                                            result = run_beat("test-beat")
+
+    assert result["status"] == "success"
+    mock_email.assert_not_called()

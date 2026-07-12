@@ -140,3 +140,23 @@ def test_beat_cli_schedule_shows_instructions():
         word in out.lower()
         for word in ["cron", "task", "launchd", "scheduler", "schedule"]
     )
+
+
+def test_beat_cli_list_beat_without_optional_fields():
+    """'beat list' with a beat that has no prompt_extra, allowed_csvs, or notify_email."""
+    from src.services.beats import BeatConfig
+
+    beat = BeatConfig.model_construct(
+        name="minimal",
+        schedule="0 0 * * *",
+        template="default",
+        mode="agent",
+        effort="quick",
+        prompt_extra=None,
+        allowed_csvs=[],
+        notify_email="",
+    )
+    with patch("src.services.beat_cli.load_beats", return_value={"minimal": beat}):
+        out = _run_cli("list")
+    assert "minimal" in out
+    assert "Every day at midnight" in out or "0 0 * * *" in out
