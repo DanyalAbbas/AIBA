@@ -44,9 +44,9 @@ EFFORT_CONFIGS: dict[EffortMode, EffortConfig] = {
             "Deliver a concise answer; do NOT loop."
         ),
         "usage_limits": UsageLimits(
-            request_limit=15,
-            tool_calls_limit=20,
-            total_tokens_limit=100_000,
+            request_limit=60,
+            tool_calls_limit=50,
+            total_tokens_limit=500_000,
         ),
     },
     EffortMode.BALANCED: {
@@ -70,9 +70,9 @@ EFFORT_CONFIGS: dict[EffortMode, EffortConfig] = {
             "Do NOT spawn wave after wave chasing diminishing returns."
         ),
         "usage_limits": UsageLimits(
-            request_limit=25,
-            tool_calls_limit=40,
-            total_tokens_limit=300_000,
+            request_limit=100,
+            tool_calls_limit=80,
+            total_tokens_limit=800_000,
         ),
     },
     EffortMode.MAX: {
@@ -97,9 +97,9 @@ EFFORT_CONFIGS: dict[EffortMode, EffortConfig] = {
             "Do not waste budget on redundant re-verification of settled facts."
         ),
         "usage_limits": UsageLimits(
-            request_limit=50,
-            tool_calls_limit=100,
-            total_tokens_limit=500_000,
+            request_limit=200,
+            tool_calls_limit=150,
+            total_tokens_limit=1000_000,
         ),
     },
 }

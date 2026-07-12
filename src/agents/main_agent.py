@@ -17,7 +17,7 @@ from pydantic_ai.providers.google import GoogleProvider
 from pydantic_ai.run import AgentRunResult
 from pydantic_ai_shields import CostTracking, InputGuard, ToolGuard
 
-from src.agents.sub_agent import sub_agent
+from src.agents.sub_agent import SubAgentContext, sub_agent
 from src.prompts import EffortMode, get_effort_config
 from src.tools.common_tools import append_csv as _append_csv
 from src.tools.common_tools import read_csv as _read_csv
@@ -114,7 +114,7 @@ main_agent = Agent(
             else []
         ),
     ],
-    retries=AgentRetries(tools=1, output=1),
+    retries=AgentRetries(tools=3, output=3),
 )
 
 STATIC_DIR = Path(__file__).resolve().parent.parent.parent / "static"
@@ -197,6 +197,7 @@ async def spawn_sub_agents(sub_agents: list[str]) -> str:
                     result = await asyncio.wait_for(
                         sub_agent.run(
                             prompt,
+                            deps=SubAgentContext(),
                             instructions=config["instructions"],
                             model_settings=config["model_settings"],
                             usage_limits=config["usage_limits"],
