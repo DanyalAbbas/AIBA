@@ -2,6 +2,34 @@
 
 All notable changes to AIBA will be documented in this file.
 
+## [0.2.0] — 2026-07-12
+
+### Added
+
+- **Custom Playwright MCP Tool** (`src/tools/playwright_mcp.py`)
+  - Reusable MCP server wrapping Playwright for interactive browser automation.
+  - Browser session caching — multiple agents share a single browser process.
+  - Optimized action tree for reduced token consumption.
+
+- **Sub-Agent Visual Tools**
+  - `read_image` — visual intelligence via Gemini vision (screenshot analysis).
+  - `preview_click` — click on coordinates with visual preview feedback.
+
+- **100% Branch Coverage**
+  - 322 unit tests covering 292/292 branches across all 19 `src/` modules.
+  - All quality gates pass: ruff ✅, pyright ✅, pytest ✅, coverage ✅.
+
+### Changed
+
+- **Sub-Agent Refactor** (`src/agents/sub_agent.py`)
+  - Cleaner instruction layering with dynamic system prompts.
+  - Reworked effort configurations and template prompt generation.
+  - `main_agent.py`: minor adjustments for refactored sub-agent interface.
+
+- **Pre-commit Pipeline** — full test suite runs on commit with coverage enforcement.
+
+- **`pyproject.toml`** — added coverage source config and pytest warning filters.
+
 ## [0.1.0] — 2026-06-29
 
 ### Initial Release — Autonomous Internet Browsing Agent
