@@ -8,8 +8,12 @@ Usage:
     aiba --version --help
 """
 
+import logging
 
 import typer
+
+# ── Silence Google SDK AFC warnings (must happen before any agent import) ──
+logging.getLogger("google_genai.models").setLevel(logging.ERROR)
 
 from src.cli.commands import beat, config, session
 from src.cli.commands.run import run_command
