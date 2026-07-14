@@ -33,3 +33,8 @@ logs/
 
 # MkDocs build output
 site/
+
+
+# claude
+.claude/
+.instance/

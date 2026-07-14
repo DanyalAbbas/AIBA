@@ -1,10 +1,12 @@
+"""Tests for src.services.rendering — Rich-based rendering primitives."""
+
 from __future__ import annotations
 
 import pytest
 
-from src.services.rendering import C, badge, hr, render_markdown
+from src.services.rendering import C, badge, divider, hr, render_markdown
 
-# ── C palette ────────────────────────────────────────────────────────
+# ── C palette (kept for backward compat) ─────────────────────────────
 
 _REQUIRED_TOKENS = ("reset", "bold", "dim", "purple", "teal", "green", "yellow", "red")
 
@@ -28,18 +30,28 @@ def test_badge_contains_both_strings():
     assert "swarm" in result
 
 
-# ── hr ───────────────────────────────────────────────────────────────
+# ── divider / hr (both print via Rich Rule, return None) ─────────────
 
 
-def test_hr_returns_string():
-    result = hr()
-    assert isinstance(result, str)
-    assert len(result) > 0
+def test_divider_is_callable():
+    """divider should not crash when called."""
+    try:
+        divider()
+    except Exception as exc:
+        pytest.fail(f"divider raised: {exc}")
 
 
-def test_hr_respects_custom_char():
-    result = hr(char="=")
-    assert "=" in result
+def test_hr_is_alias_for_divider():
+    """hr should be the same function as divider."""
+    assert hr is divider
+
+
+def test_divider_respects_custom_char():
+    """divider with custom char should not crash."""
+    try:
+        divider(char="=")
+    except Exception as exc:
+        pytest.fail(f"divider(char='=') raised: {exc}")
 
 
 # ── render_markdown (smoke) ──────────────────────────────────────────

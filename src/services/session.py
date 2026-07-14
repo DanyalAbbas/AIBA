@@ -137,6 +137,22 @@ def load_session(name: str) -> tuple[list[Any], dict[str, Any] | None]:
     return history, None
 
 
+def delete_session(name: str) -> None:
+    """Delete a saved session file from ./sessions/.
+
+    Args:
+        name: Session name (without .json extension).
+
+    Raises:
+        FileNotFoundError: If the session file does not exist.
+
+    """
+    path = _resolve(name)
+    if not path.is_file():
+        raise FileNotFoundError(f"Session not found: {path}")
+    path.unlink()
+
+
 def list_sessions() -> list[str]:
     """Return available session names (without .json extension), newest first."""
     SESSIONS_DIR.mkdir(parents=True, exist_ok=True)

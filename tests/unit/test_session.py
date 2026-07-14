@@ -418,3 +418,52 @@ def test_print_history_with_tool_call_part(capsys):
     # Should render the user-prompt and text, skip tool-call
     assert "hello" in captured.out
     assert "Here is the result" in captured.out
+
+
+def test_delete_session_missing():
+    """delete_session raises FileNotFoundError for missing session."""
+    from src.services.session import delete_session
+
+    with pytest.raises(FileNotFoundError):
+        delete_session("nonexistent_" + __import__("uuid").uuid4().hex)
+
+
+def test_delete_session_success(tmp_path, monkeypatch):
+    """delete_session removes the session file."""
+    from src.services.session import delete_session
+
+    monkeypatch.setattr("src.services.session.SESSIONS_DIR", tmp_path)
+    session_file = tmp_path / "test.json"
+    session_file.write_text("{}", encoding="utf-8")
+
+    delete_session("test")
+    assert not session_file.is_file()
+
+
+def test_print_history_empty_session(capsys):
+    """print_history with empty list shows (empty session)."""
+    from src.services.session import print_history
+    print_history([])
+    captured = capsys.readouterr()
+    assert "empty" in captured.out.lower()
+
+
+def test_trim_filters_different_message_type():
+    """trim_history handles non-Request/Response message types."""
+    from pydantic_ai.messages import ModelRequest, UserPromptPart
+
+    from src.services.session import trim_history
+
+    messages = [
+        ModelRequest(parts=[UserPromptPart(content="keep", part_kind="user-prompt")]),
+        {"kind": "unknown", "content": "test"},
+    ]
+    result = trim_history(messages)
+    assert len(result) >= 1
+    assert any(
+        hasattr(m, "parts") and any(
+            getattr(p, "part_kind", None) == "user-prompt"
+            for p in m.parts
+        )
+        for m in result
+    )

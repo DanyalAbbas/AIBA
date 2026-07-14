@@ -6,6 +6,7 @@ Uses input() side_effect sequences to simulate user interactions.
 
 from __future__ import annotations
 
+from pathlib import Path
 from unittest.mock import MagicMock, patch
 
 from pydantic_ai.exceptions import UsageLimitExceeded
@@ -250,19 +251,62 @@ def test_repl_session_settings_default(capsys):
     assert "Session ended" in captured.out
 
 
-def test_repl_run_with_session_settings_dict(capsys):
-    """run() with session_settings already a dict covers the non-None branch."""
+def test_repl_stats_command(capsys):
+    """/stats should show session information."""
     config = _make_config()
-    settings = {"model": "gemini-2.5-flash", "temperature": 0.5}
 
-    with patch("builtins.input", side_effect=["/exit"]):
+    with patch("builtins.input", side_effect=["/stats", "/exit"]):
         run(
             _make_agent_fn(),
             _make_initial_result(),
             config,
-            session_settings=settings,
+            agent_name="Orchestrator",
+            session_settings={"mode": "swarm"},
         )
 
     captured = capsys.readouterr()
-    assert "Session started" in captured.out
-    assert "Session ended" in captured.out
+    assert "Messages" in captured.out
+    assert "Orchestrator" in captured.out
+    assert "swarm" in captured.out
+
+
+def test_repl_stats_no_settings(capsys):
+    """/stats should work even without session_settings."""
+    config = _make_config()
+
+    with patch("builtins.input", side_effect=["/stats", "/exit"]):
+        run(
+            _make_agent_fn(),
+            _make_initial_result(),
+            config,
+            agent_name="Agent",
+        )
+
+    captured = capsys.readouterr()
+    assert "Messages" in captured.out
+    assert "Agent" in captured.out
+
+
+def test_setup_readline_first_run(monkeypatch):
+    """_setup_readline should handle missing history file."""
+    import tempfile
+    tmp = tempfile.mktemp()
+    monkeypatch.setattr("pathlib.Path.home", lambda: Path(tmp))
+    # Should not raise on first run (no history file)
+    from src.services.repl import _setup_readline
+    _setup_readline()
+
+
+def test_setup_readline_import_error(monkeypatch):
+    """_setup_readline should handle readline ImportError."""
+    import builtins
+    original_import = builtins.__import__
+
+    def _mock_import(name, *args, **kwargs):
+        if name == "readline":
+            raise ImportError("mock")
+        return original_import(name, *args, **kwargs)
+
+    monkeypatch.setattr(builtins, "__import__", _mock_import)
+    from src.services.repl import _setup_readline
+    _setup_readline()

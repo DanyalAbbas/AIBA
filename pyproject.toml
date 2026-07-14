@@ -1,3 +1,7 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
 [project]
 name = "aiba"
 version = "0.2.0"
@@ -20,7 +24,11 @@ dependencies = [
     "fastmcp-slim[server]>=3.4.2",
     "nanoid>=2.0.0",
     "pyright[latest]>=1.1.410",
+    "typer>=0.15.0",
 ]
+
+[project.scripts]
+aiba = "src.cli.main:entry_point"
 
 [dependency-groups]
 dev = [
@@ -33,6 +41,12 @@ dev = [
     "pre-commit>=4.6.0",
 ]
 
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/"]
+
+[tool.uv]
+package = true
 
 [tool.pyright]
 typeCheckingMode = "standard"
@@ -96,7 +110,10 @@ filterwarnings = [
 
 [tool.coverage.run]
 source = ["src"]
-omit = ["src/prompts/templates.py"]
+omit = [
+    "src/__main__.py",
+    "src/prompts/templates.py",
+]
 
 [tool.coverage.report]
 show_missing = true
