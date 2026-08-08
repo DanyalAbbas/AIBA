@@ -15,8 +15,8 @@ import typer
 # ── Silence Google SDK AFC warnings (must happen before any agent import) ──
 logging.getLogger("google_genai.models").setLevel(logging.ERROR)
 
-from src.cli.commands import beat, config, session
-from src.cli.commands.run import run_command
+from src.cli.commands import beat, config, session  # noqa: E402
+from src.cli.commands.run import run_command  # noqa: E402
 
 app = typer.Typer(
     name="aiba",
@@ -37,12 +37,21 @@ def run(
         None,
         help="Task description for the agent. If omitted, launches the interactive wizard.",
     ),
-    mode: str = typer.Option("agent", "--mode", "-m", help="Execution mode: agent | swarm"),
+    mode: str = typer.Option(
+        "agent", "--mode", "-m", help="Execution mode: agent | swarm"
+    ),
     template: str = typer.Option("default", "--template", "-t", help="Prompt template"),
-    effort: str = typer.Option("balanced", "--effort", "-e", help="Effort level: quick | balanced | max"),
-    sub_agents: int = typer.Option(5, "--sub-agents", "-s", help="Max concurrent sub-agents (swarm only)"),
+    effort: str = typer.Option(
+        "balanced", "--effort", "-e", help="Effort level: quick | balanced | max"
+    ),
+    sub_agents: int = typer.Option(
+        5, "--sub-agents", "-s", help="Max concurrent sub-agents (swarm only)"
+    ),
     interactive: bool = typer.Option(
-        False, "--interactive", "-i", help="Force interactive wizard even with a prompt",
+        False,
+        "--interactive",
+        "-i",
+        help="Force interactive wizard even with a prompt",
     ),
 ) -> None:
     """Execute the agent with a prompt.
@@ -76,7 +85,11 @@ def _version_callback(version_flag: bool = False) -> None:
 def main(
     ctx: typer.Context,
     version: bool = typer.Option(
-        False, "--version", "-V", help="Show version and exit", callback=_version_callback,
+        False,
+        "--version",
+        "-V",
+        help="Show version and exit",
+        callback=_version_callback,
     ),
 ) -> None:
     """AIBA — Autonomous Internet Browsing Agent."""
